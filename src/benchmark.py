@@ -27,6 +27,37 @@ if os.path.exists(".env.local"):
 else:
     load_dotenv()
 
+# Suppress gRPC warnings from Google API
+import warnings
+import logging
+import os
+
+# Set environment variables to reduce Google API noise
+os.environ["GRPC_PYTHON_LOG_LEVEL"] = "error"
+os.environ["ABSL_LOGGING_MIN_LEVEL"] = "1"  # Only show ERROR and above
+
+warnings.filterwarnings("ignore", message=".*gRPC.*")
+warnings.filterwarnings("ignore", message=".*absl.*")
+logging.getLogger("absl").setLevel(logging.ERROR)
+logging.getLogger("google").setLevel(logging.ERROR)
+
+# Model enable/disable configuration
+# Set these to True/False to enable/disable specific model providers
+ENABLE_OPENAI_MODELS = os.getenv("ENABLE_OPENAI_MODELS", "True").lower() == "true"
+ENABLE_ANTHROPIC_MODELS = os.getenv("ENABLE_ANTHROPIC_MODELS", "True").lower() == "true"
+ENABLE_GOOGLE_MODELS = os.getenv("ENABLE_GOOGLE_MODELS", "True").lower() == "true"
+
+# Individual model enable/disable configuration
+# Set these to True/False to enable/disable specific models
+ENABLE_GPT_5_MINI = os.getenv("ENABLE_GPT_5_MINI", "True").lower() == "true"
+ENABLE_GPT_5 = os.getenv("ENABLE_GPT_5", "True").lower() == "true"
+ENABLE_GPT_4_1 = os.getenv("ENABLE_GPT_4_1", "True").lower() == "true"
+ENABLE_GPT_4_1_MINI = os.getenv("ENABLE_GPT_4_1_MINI", "True").lower() == "true"
+ENABLE_CLAUDE_3_7_SONNET = os.getenv("ENABLE_CLAUDE_3_7_SONNET", "True").lower() == "true"
+ENABLE_CLAUDE_SONNET_4 = os.getenv("ENABLE_CLAUDE_SONNET_4", "True").lower() == "true"
+ENABLE_GEMINI_1_5_PRO = os.getenv("ENABLE_GEMINI_1_5_PRO", "True").lower() == "true"
+ENABLE_GEMINI_2_5_PRO = os.getenv("ENABLE_GEMINI_2_5_PRO", "True").lower() == "true"
+
 @dataclass
 class ModelConfig:
     name: str
@@ -37,54 +68,137 @@ class ModelConfig:
     cost_per_1k_tokens: Optional[float] = None  # Legacy: cost per 1K tokens (used if input/output not specified)
 
 # Enhanced model configurations with accurate pricing (input/output costs)
-models = [
-    # Anthropic models (same cost for input/output)
-    ModelConfig("Claude-3.7-Sonnet", "Anthropic", "claude-3-7-sonnet-20250219", 
-                input_cost_per_1k=0.003, output_cost_per_1k=0.015),
-    ModelConfig("Claude-Opus-4.1", "Anthropic", "claude-opus-4-1-20250805", 
-                input_cost_per_1k=0.015, output_cost_per_1k=0.075),
-    ModelConfig("Claude-Sonnet-4", "Anthropic", "claude-sonnet-4-20250514", 
-                input_cost_per_1k=0.003, output_cost_per_1k=0.015),
-    
-    # OpenAI models (different input/output costs)
-    ModelConfig("GPT-4.1", "OpenAI", "openai:gpt-4.1", 
-                input_cost_per_1k=0.03, output_cost_per_1k=0.06),
-    ModelConfig("GPT-5", "OpenAI", "openai:gpt-5", 
-                input_cost_per_1k=0.05, output_cost_per_1k=0.15),
-    ModelConfig("GPT-5-mini", "OpenAI", "openai:gpt-5-mini", 
-                input_cost_per_1k=0.01, output_cost_per_1k=0.03),
-    ModelConfig("GPT-4.1-mini", "OpenAI", "openai:gpt-4.1-mini", 
-                input_cost_per_1k=0.01, output_cost_per_1k=0.03),
-    
-    # Google models (same cost for input/output)
-    ModelConfig("Gemini-1.5-Pro", "Google", "gemini-1.5-pro", 
-                input_cost_per_1k=0.0025, output_cost_per_1k=0.0025),
-    ModelConfig("Gemini-2.5-Pro", "Google", "gemini-2.5-pro", 
-                input_cost_per_1k=0.0025, output_cost_per_1k=0.0025),
-]
+models = []
+
+# Add OpenAI models if enabled
+if ENABLE_OPENAI_MODELS:
+    if ENABLE_GPT_5_MINI:
+        models.append(ModelConfig("GPT-5-mini", "OpenAI", "openai:gpt-5-mini", 
+                    input_cost_per_1k=0.01, output_cost_per_1k=0.03))
+    if ENABLE_GPT_5:
+        models.append(ModelConfig("GPT-5", "OpenAI", "openai:gpt-5", 
+                    input_cost_per_1k=0.05, output_cost_per_1k=0.15))
+    if ENABLE_GPT_4_1:
+        models.append(ModelConfig("GPT-4.1", "OpenAI", "openai:gpt-4.1", 
+                    input_cost_per_1k=0.03, output_cost_per_1k=0.06))
+    if ENABLE_GPT_4_1_MINI:
+        models.append(ModelConfig("GPT-4.1-mini", "OpenAI", "openai:gpt-4.1-mini", 
+                    input_cost_per_1k=0.01, output_cost_per_1k=0.03))
+
+# Add Anthropic models if enabled
+if ENABLE_ANTHROPIC_MODELS:
+    if ENABLE_CLAUDE_3_7_SONNET:
+        models.append(ModelConfig("Claude-3.7-Sonnet", "Anthropic", "claude-3-7-sonnet-20250219", 
+                    input_cost_per_1k=0.003, output_cost_per_1k=0.015))
+    if ENABLE_CLAUDE_SONNET_4:
+        models.append(ModelConfig("Claude-Sonnet-4", "Anthropic", "claude-sonnet-4-20250514", 
+                    input_cost_per_1k=0.003, output_cost_per_1k=0.015))
+
+# Add Google models if enabled
+if ENABLE_GOOGLE_MODELS:
+    if ENABLE_GEMINI_1_5_PRO:
+        models.append(ModelConfig("Gemini-1.5-Pro", "Google", "gemini-1.5-pro", 
+                    input_cost_per_1k=0.0025, output_cost_per_1k=0.0025))
+    if ENABLE_GEMINI_2_5_PRO:
+        models.append(ModelConfig("Gemini-2.5-Pro", "Google", "gemini-2.5-pro", 
+                    input_cost_per_1k=0.0025, output_cost_per_1k=0.0025))
 
 # Client initialization will be done inside functions to avoid import issues
+
+async def generate_model_response(model: str, input_text: str) -> str:
+    """Generate a response from the specified model for the given input."""
+    start_time = time.time()
+    
+    try:
+        # Make API call based on model provider
+        if model.startswith("openai:"):
+            actual_model = model.replace("openai:", "")
+            
+            # Use max_completion_tokens for GPT-5 models, max_tokens for others
+            if "gpt-5" in actual_model.lower():
+                response = openai_client.chat.completions.create(
+                    model=actual_model,
+                    messages=[
+                        {"role": "user", "content": input_text}
+                    ],
+                    max_completion_tokens=2048,
+                    temperature=0.1
+                )
+            else:
+                response = openai_client.chat.completions.create(
+                    model=actual_model,
+                    messages=[
+                        {"role": "user", "content": input_text}
+                    ],
+                    temperature=0.1,
+                    max_tokens=2048
+                )
+            return response.choices[0].message.content
+            
+        elif model.startswith("claude-") or model.startswith("anthropic:"):
+            # Handle both claude-* and anthropic:claude-* formats
+            actual_model = model.replace("anthropic:", "") if model.startswith("anthropic:") else model
+            
+            response = anthropic_client.messages.create(
+                model=actual_model,
+                max_tokens=2048,
+                temperature=0.1,
+                messages=[
+                    {"role": "user", "content": input_text}
+                ]
+            )
+            return response.content[0].text
+            
+        elif model.startswith("gemini-"):
+            # Google Gemini models
+            actual_model = model.replace("gemini-", "")
+            
+            # Use the correct method for the current Google Generative AI library
+            # Map model names to correct identifiers
+            model_mapping = {
+                "1.5-pro": "gemini-1.5-pro",
+                "2.5-pro": "gemini-2.5-pro"
+            }
+            model_id = model_mapping.get(actual_model, f"gemini-{actual_model}")
+            
+            model_instance = genai.GenerativeModel(model_id)
+            response = model_instance.generate_content(
+                input_text,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=2048,
+                    temperature=0.1
+                )
+            )
+            return response.text
+            
+        else:
+            raise ValueError(f"Unsupported model: {model}")
+            
+    except Exception as e:
+        end_time = time.time()
+        print(f"Error generating response for {model}: {e}")
+        return f"Error: {str(e)}"
 
 # Enhanced factuality evaluation template
 template_yaml = """
 prompt: |
-  You are evaluating the factuality of an AI model's response. Given the following:
+  You are evaluating the factual accuracy and completeness of an AI model's response. Given the following:
 
   Input: {{input}}
   Model Output: {{output}}
   Expected Answer: {{expected}}
 
-  Please evaluate whether the model output is factually consistent with the expected answer.
+  Please evaluate the model's response based on both factual accuracy and how well it addresses the question.
 
   Choose one of the following options:
-  A) The model output is a subset of the expected answer (contains less information)
-  B) The model output is a superset of the expected answer (contains more information)
-  C) The model output is equivalent to the expected answer (same information)
-  D) The model output disagrees with the expected answer (contradictory information)
+  A) Factually correct but very brief/incomplete (missing key details)
+  B) Factually correct and reasonably complete (covers main points)
+  C) Factually correct and comprehensive (detailed and thorough)
+  D) Contains factual errors or contradictions
 
 choice_scores:
-  A: 0.3
-  B: 0.6
+  A: 0.4
+  B: 0.7
   C: 1.0
   D: 0.0
 """
@@ -235,7 +349,15 @@ Here are a few examples:
             total_tokens = input_tokens + output_tokens
             
         elif model.startswith("gemini-"):
-            model_obj = genai.GenerativeModel(model)
+            # Use the correct method for the current Google Generative AI library
+            # Map model names to correct identifiers
+            model_mapping = {
+                "gemini-1.5-pro": "gemini-1.5-pro",
+                "gemini-2.5-pro": "gemini-2.5-pro"
+            }
+            model_id = model_mapping.get(model, model)
+            
+            model_obj = genai.GenerativeModel(model_id)
             response = model_obj.generate_content(
                 f"{tool_prompt}\n\n{user_content}",
                 generation_config=genai.types.GenerationConfig(
@@ -363,10 +485,41 @@ sample_data = [
     }
 ]
 
+def print_model_configuration():
+    """Print the current model configuration."""
+    print("🔧 Model Configuration:")
+    print(f"  OpenAI Models: {'✅ Enabled' if ENABLE_OPENAI_MODELS else '❌ Disabled'}")
+    if ENABLE_OPENAI_MODELS:
+        print(f"    - GPT-5-mini: {'✅' if ENABLE_GPT_5_MINI else '❌'}")
+        print(f"    - GPT-5: {'✅' if ENABLE_GPT_5 else '❌'}")
+        print(f"    - GPT-4.1: {'✅' if ENABLE_GPT_4_1 else '❌'}")
+        print(f"    - GPT-4.1-mini: {'✅' if ENABLE_GPT_4_1_MINI else '❌'}")
+    
+    print(f"  Anthropic Models: {'✅ Enabled' if ENABLE_ANTHROPIC_MODELS else '❌ Disabled'}")
+    if ENABLE_ANTHROPIC_MODELS:
+        print(f"    - Claude-3.7-Sonnet: {'✅' if ENABLE_CLAUDE_3_7_SONNET else '❌'}")
+        print(f"    - Claude-Sonnet-4: {'✅' if ENABLE_CLAUDE_SONNET_4 else '❌'}")
+    
+    print(f"  Google Models: {'✅ Enabled' if ENABLE_GOOGLE_MODELS else '❌ Disabled'}")
+    if ENABLE_GOOGLE_MODELS:
+        print(f"    - Gemini-1.5-Pro: {'✅' if ENABLE_GEMINI_1_5_PRO else '❌'}")
+        print(f"    - Gemini-2.5-Pro: {'✅' if ENABLE_GEMINI_2_5_PRO else '❌'}")
+    
+    print(f"\n📊 Total Models Enabled: {len(models)}")
+    if models:
+        print("Models to test:", ", ".join([f"{m.name} ({m.provider})" for m in models]))
+    else:
+        print("❌ No models enabled! Please check your configuration.")
+    print()
+
 async def run_benchmark():
     """Run the main benchmarking function with enhanced metrics."""
     print("Starting enhanced inference model benchmarking...")
-    print("Models to test:", ", ".join([f"{m.name} ({m.provider})" for m in models]))
+    print_model_configuration()
+    
+    if not models:
+        print("❌ No models are enabled. Please set the appropriate environment variables to enable models.")
+        return
     
     evals = []
     
@@ -404,9 +557,9 @@ async def run_benchmark():
                 
                 # Calculate metrics with accurate input/output token costs
                 latency = result["metadata"].get("latency_seconds", 0)
-                input_tokens = result["metadata"].get("input_tokens", 0)
-                output_tokens = result["metadata"].get("output_tokens", 0)
-                total_tokens = result["metadata"].get("total_tokens", 0)
+                input_tokens = int(result["metadata"].get("input_tokens", 0))
+                output_tokens = int(result["metadata"].get("output_tokens", 0))
+                total_tokens = int(result["metadata"].get("total_tokens", 0))
                 
                 # Calculate costs using input/output specific pricing
                 input_cost = (input_tokens / 1000) * (model_config.input_cost_per_1k or model_config.cost_per_1k_tokens or 0)
@@ -417,7 +570,7 @@ async def run_benchmark():
                 tokens_per_second = total_tokens / latency if latency > 0 else 0
                 
                 total_latency += latency
-                total_tokens += total_tokens
+                total_tokens += result["metadata"].get("total_tokens", 0)
                 total_cost += total_cost
                 if result["score"] > 0:
                     successful_calls += 1
@@ -439,7 +592,7 @@ async def run_benchmark():
                 normalized_total_tokens = min(1.0, total_tokens / max_tokens)
                 normalized_latency = min(1.0, latency / max_latency)
                 
-                # Log results to Braintrust with normalized metrics for proper column display
+                # Log results to Braintrust with raw values in metadata, only factuality in scores
                 experiment.log(
                     input=data_point["input"],
                     output=factuality_score,
@@ -455,24 +608,20 @@ async def run_benchmark():
                         "latency": normalized_latency,
                     },
                     metadata={
-                        "factuality_score": factuality_score,
-                        "choice": result["metadata"].get("choice"),
-                        "rationale": result["metadata"].get("rationale"),
-                        "error": result["metadata"].get("error"),
+                        "input_cost_usd": input_cost,
+                        "output_cost_usd": output_cost,
+                        "total_cost_usd": total_cost,
+                        "input_tokens_count": input_tokens,
+                        "output_tokens_count": output_tokens,
+                        "total_tokens_count": total_tokens,
                         "latency_seconds": latency,
-                        "input_tokens": input_tokens,
-                        "output_tokens": output_tokens,
-                        "total_tokens": total_tokens,
-                        "tokens_per_second": result["metadata"].get("tokens_per_second"),
-                        "cost_usd": total_cost,
+                        "tokens_per_second": tokens_per_second,
                         "expected_output": data_point["expected"],
-                        "actual_output": data_point["input"]["output"],  # The model's response
-                        "input_cost": input_cost,
-                        "output_cost": output_cost,
+                        "actual_output": data_point["input"]["output"],
                     }
                 )
                 
-                print(f"  - Score: {result['score']}, Latency: {latency:.3f}s, Tokens: {total_tokens}, Cost: ${total_cost:.4f}")
+                print(f"  - Score: {result['score']}, Latency: {latency:.3f}s, Tokens: {int(total_tokens)}, Cost: ${total_cost:.4f}")
                 
             except Exception as e:
                 print(f"  - Error: {e}")
@@ -489,7 +638,7 @@ async def run_benchmark():
         avg_tokens = total_tokens / len(sample_data) if sample_data else 0
         success_rate = successful_calls / len(sample_data) if sample_data else 0
         
-        print(f"  📊 Summary: Avg Latency: {avg_latency:.3f}s, Avg Tokens: {avg_tokens:.1f}, Success Rate: {success_rate:.1%}, Total Cost: ${total_cost:.4f}")
+        print(f"  📊 Summary: Avg Latency: {avg_latency:.3f}s, Avg Tokens: {int(avg_tokens)}, Success Rate: {success_rate:.1%}, Total Cost: ${total_cost:.4f}")
         
         # Don't call end() - let Braintrust handle experiment completion
         evals.append(experiment)

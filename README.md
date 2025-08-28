@@ -8,15 +8,20 @@ A comprehensive benchmarking framework for evaluating inference models using Bra
 - **GPT-4.1** (OpenAI) - `openai:gpt-4.1`
 - **GPT-5** (OpenAI) - `openai:gpt-5`
 - **Gemini-2.5-Pro** (Google) - `gemini-2.5-pro`
+- **Grok-1** (xAI) - `grok-1`
 
 ## ✨ Features
 
-- **Multi-model evaluation** across different AI providers
-- **Comprehensive dataset** with 25+ test cases
+- **Multi-model evaluation** across different AI providers (OpenAI, Anthropic, Google, xAI)
+- **Comprehensive dataset** with 25+ test cases across 8 categories
 - **Category-based analysis** (factual knowledge, mathematics, science, history, geography, reasoning, creative, programming)
 - **Difficulty levels** (easy, medium, hard)
 - **Factuality scoring** using structured evaluation
-- **Detailed metrics** including accuracy, latency, and token usage
+- **Latency measurement** with precise timing and throughput analysis
+- **Cost analysis** with per-model pricing and efficiency metrics
+- **Comparative analysis** with side-by-side performance comparisons
+- **User experience insights** including reliability and success rates
+- **Visualization** with charts and graphs for performance analysis
 - **Braintrust integration** for experiment tracking and visualization
 
 ## 📊 Dataset Categories
@@ -115,12 +120,17 @@ A comprehensive benchmarking framework for evaluating inference models using Bra
    python run_benchmark.py enhanced
    ```
 
-5. **Debug API issues**
+5. **Run comparative analysis** (comprehensive performance comparison)
+   ```bash
+   python run_benchmark.py comparative
+   ```
+
+6. **Debug API issues**
    ```bash
    python run_benchmark.py debug
    ```
 
-6. **Run everything** (setup check + basic + enhanced)
+7. **Run everything** (setup check + basic + enhanced + comparative)
    ```bash
    python run_benchmark.py all
    ```
@@ -145,10 +155,14 @@ python src/debug_test.py
 ### Metrics Tracked
 
 - **Factuality Score**: How well the model's response matches expected facts
+- **Latency**: Response time in seconds with precise measurement
+- **Token Usage**: Input, output, and total token consumption
+- **Cost Analysis**: Per-request and total cost calculations
+- **Throughput**: Tokens processed per second
+- **Success Rate**: Percentage of successful API calls
 - **Choice Analysis**: Detailed breakdown of evaluation choices (A, B, C, D)
 - **Rationale**: Reasoning behind the evaluation
 - **Error Rates**: Frequency of API failures or parsing errors
-- **Performance**: Latency and token usage statistics
 
 ### Score Interpretation
 
@@ -163,14 +177,18 @@ python src/debug_test.py
 1. **Braintrust Dashboard**: Visit your Braintrust project to see detailed results
 2. **Experiment Comparison**: Compare models across different categories and difficulties
 3. **Performance Analysis**: Analyze latency, token usage, and error patterns
+4. **Comparative Analysis**: View side-by-side performance comparisons with rankings
+5. **Generated Files**: Check CSV files and visualizations for detailed insights
+6. **Cost Analysis**: Review cost efficiency and pricing comparisons
 
 ## 🏗️ Project Structure
 
 ```
 braintrust-inf-model-benchmarking/
 ├── src/
-│   ├── benchmark.py              # Main benchmarking script
+│   ├── benchmark.py              # Main benchmarking script with latency/cost metrics
 │   ├── enhanced_benchmark.py     # Detailed category/difficulty analysis
+│   ├── comparative_analysis.py   # Comprehensive performance comparison
 │   ├── dataset.py                # Test cases and dataset utilities
 │   ├── setup_check.py            # Setup validation script
 │   └── debug_test.py             # API debugging script

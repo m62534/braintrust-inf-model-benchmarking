@@ -8,7 +8,7 @@ This script helps debug API connectivity and evaluation issues.
 import os
 import asyncio
 from dotenv import load_dotenv
-from benchmark import evaluate_factuality
+from benchmark import evaluate_factuality_with_metrics
 
 # Load environment variables
 if os.path.exists(".env.local"):
@@ -31,7 +31,7 @@ async def test_evaluate_factuality():
     print("🚀 Making API call to model...")
     
     try:
-        result = await evaluate_factuality(
+        result = await evaluate_factuality_with_metrics(
             model=test_case["model"],
             input_text=test_case["input"],
             output_text=test_case["output"],
@@ -70,12 +70,20 @@ async def test_multiple_models():
     print("\n🔍 Testing multiple models...")
     
     models_to_test = [
-        "openai:gpt-4o",
-        "openai:gpt-4o-mini", 
-        "openai:gpt-4",
-        "claude-3-5-sonnet-20241022",
+        # Anthropic models
         "claude-3-7-sonnet-20250219",
-        "gemini-2.0-flash-exp",
+        "claude-opus-4-1-20250805",
+        "claude-sonnet-4-20250514",
+        "anthropic:claude-3-7-sonnet-20250219",
+        
+        # OpenAI models
+        "openai:gpt-4.1",
+        "openai:gpt-5",
+        "openai:gpt-5-mini",
+        "openai:gpt-4.1-mini",
+        
+        # Google models
+        "gemini-1.5-pro",
         "gemini-2.5-pro"
     ]
     
@@ -88,7 +96,7 @@ async def test_multiple_models():
     for model in models_to_test:
         print(f"\n🧪 Testing model: {model}")
         try:
-            result = await evaluate_factuality(
+            result = await evaluate_factuality_with_metrics(
                 model=model,
                 input_text=test_input["input"],
                 output_text=test_input["output"],

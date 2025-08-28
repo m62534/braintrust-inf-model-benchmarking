@@ -33,15 +33,17 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python run_benchmark.py <command>")
         print("\nAvailable commands:")
-        print("  setup     - Check your setup and configuration")
-        print("  basic     - Run basic benchmark")
-        print("  enhanced  - Run enhanced benchmark with categories")
-        print("  debug     - Run debug tests")
-        print("  all       - Run setup check, then basic benchmark")
+        print("  setup         - Check your setup and configuration")
+        print("  basic         - Run basic benchmark")
+        print("  enhanced      - Run enhanced benchmark with categories")
+        print("  comparative   - Run comprehensive comparative analysis")
+        print("  debug         - Run debug tests")
+        print("  all           - Run setup check, then basic benchmark")
         print("\nExamples:")
         print("  python run_benchmark.py setup")
         print("  python run_benchmark.py basic")
         print("  python run_benchmark.py enhanced")
+        print("  python run_benchmark.py comparative")
         return
     
     command = sys.argv[1].lower()
@@ -54,6 +56,9 @@ def main():
         
     elif command == "enhanced":
         success = run_command("python src/enhanced_benchmark.py", "Running Enhanced Benchmark")
+        
+    elif command == "comparative":
+        success = run_command("python src/comparative_analysis.py", "Running Comparative Analysis")
         
     elif command == "debug":
         success = run_command("python src/debug_test.py", "Running Debug Tests")
@@ -71,7 +76,13 @@ def main():
                 enhanced_success = run_command("python src/enhanced_benchmark.py", "Running Enhanced Benchmark")
                 
                 if enhanced_success:
-                    print("\n🎉 All benchmarks completed successfully!")
+                    print("\n✅ Enhanced benchmark completed! Running comparative analysis...")
+                    comparative_success = run_command("python src/comparative_analysis.py", "Running Comparative Analysis")
+                    
+                    if comparative_success:
+                        print("\n🎉 All benchmarks completed successfully!")
+                    else:
+                        print("\n⚠️  Comparative analysis had issues, but other benchmarks completed.")
                 else:
                     print("\n⚠️  Enhanced benchmark had issues, but basic benchmark completed.")
             else:
@@ -81,7 +92,7 @@ def main():
             
     else:
         print(f"❌ Unknown command: {command}")
-        print("Available commands: setup, basic, enhanced, debug, all")
+        print("Available commands: setup, basic, enhanced, comparative, debug, all")
         return
     
     print(f"\n{'='*60}")

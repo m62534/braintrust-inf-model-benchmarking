@@ -4,17 +4,23 @@ A comprehensive benchmarking framework for evaluating inference models using Bra
 
 ## 🎯 Models Being Tested
 
-- **Claude-3.7-Sonnet** (Anthropic) - `claude-3-7-sonnet-20250219`
-- **GPT-4.1** (OpenAI) - `openai:gpt-4.1`
-- **GPT-5** (OpenAI) - `openai:gpt-5`
+### Currently Active Models
+- **Gemini-1.5-Pro** (Google) - `gemini-1.5-pro`
 - **Gemini-2.5-Pro** (Google) - `gemini-2.5-pro`
-- **Grok-1** (xAI) - `grok-1`
+
+### Available Models (Configurable)
+- **GPT-5-mini** (OpenAI) - `openai:gpt-5-mini`
+- **GPT-5** (OpenAI) - `openai:gpt-5`
+- **GPT-4.1** (OpenAI) - `openai:gpt-4.1`
+- **GPT-4.1-mini** (OpenAI) - `openai:gpt-4.1-mini`
+- **Claude-3.7-Sonnet** (Anthropic) - `claude-3-7-sonnet-20250219`
+- **Claude-Sonnet-4** (Anthropic) - `claude-sonnet-4-20250514`
 
 ## ✨ Features
 
-- **Multi-model evaluation** across different AI providers (OpenAI, Anthropic, Google, xAI)
-- **Comprehensive dataset** with 25+ test cases across 8 categories
-- **Category-based analysis** (factual knowledge, mathematics, science, history, geography, reasoning, creative, programming)
+- **Multi-model evaluation** across different AI providers (OpenAI, Anthropic, Google)
+- **Comprehensive dataset** with 18 test cases across 4 categories
+- **Category-based analysis** (context understanding, inference, problem context, multi-step reasoning)
 - **Difficulty levels** (easy, medium, hard)
 - **Factuality scoring** using structured evaluation
 - **Latency measurement** with precise timing and throughput analysis
@@ -23,23 +29,26 @@ A comprehensive benchmarking framework for evaluating inference models using Bra
 - **User experience insights** including reliability and success rates
 - **Visualization** with charts and graphs for performance analysis
 - **Braintrust integration** for experiment tracking and visualization
+- **Flexible model configuration** with enable/disable options per model
 
 ## 📊 Dataset Categories
 
 ### Task Categories
-- **Factual Knowledge**: General knowledge questions
-- **Mathematics**: Mathematical problems and calculations
-- **Science**: Scientific concepts and explanations
-- **History**: Historical events and figures
-- **Geography**: Geographic locations and facts
-- **Reasoning**: Logical reasoning and problem-solving
-- **Creative**: Creative writing and artistic tasks
-- **Programming**: Code generation and technical tasks
+- **Context Understanding**: Analyzing and interpreting contextual information
+- **Inference**: Drawing logical conclusions from given information
+- **Problem Context**: Understanding complex problem scenarios
+- **Multi-step Reasoning**: Solving problems requiring multiple logical steps
 
 ### Difficulty Levels
 - **Easy**: Straightforward questions with clear answers
 - **Medium**: Moderately complex tasks requiring some analysis
 - **Hard**: Complex problems requiring deep understanding
+
+### Test Case Distribution
+- **Context Understanding**: 6 test cases
+- **Inference**: 6 test cases  
+- **Problem Context**: 4 test cases
+- **Multi-step Reasoning**: 2 test cases
 
 ## 🚀 Quick Start
 
@@ -88,13 +97,19 @@ A comprehensive benchmarking framework for evaluating inference models using Bra
    GOOGLE_API_KEY=your_google_api_key
    ```
 
-5. **Configure Braintrust API keys**
+5. **Configure which models to test**
+   ```bash
+   python configure_models.py
+   ```
+   This interactive script lets you enable/disable specific models and providers.
+
+6. **Configure Braintrust API keys**
    - Go to [Braintrust Dashboard](https://www.braintrust.dev/app/settings?subroute=secrets)
    - Navigate to **Settings → Organization → AI providers**
    - Add your API keys:
-     - **OpenAI**: `OPENAI_API_KEY` (for GPT-4.1 and GPT-5)
-     - **Anthropic**: `ANTHROPIC_API_KEY` (for Claude-3.7-Sonnet)
-     - **Gemini**: `GEMINI_API_KEY` (for Gemini-2.5-Pro)
+     - **OpenAI**: `OPENAI_API_KEY` (for GPT models)
+     - **Anthropic**: `ANTHROPIC_API_KEY` (for Claude models)
+     - **Google**: `GOOGLE_API_KEY` (for Gemini models)
 
 ### Usage
 
@@ -148,6 +163,18 @@ python src/setup_check.py
 python src/benchmark.py
 python src/enhanced_benchmark.py
 python src/debug_test.py
+```
+
+### Model Discovery Tools
+
+Check which models are available with your API keys:
+
+```bash
+# List available OpenAI models (including GPT-5)
+python list_openai_models.py
+
+# List available Anthropic models
+python list_anthropic_models.py
 ```
 
 ## 📈 Understanding Results
